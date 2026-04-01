@@ -70,6 +70,29 @@
       gd = "git diff";
       gl = "git log --oneline -20";
     };
+    initExtra = ''
+      # Scaffold a new project from a dotfiles template
+      # Usage: newproject <template> <name>
+      newproject() {
+        if [ -z "$1" ] || [ -z "$2" ]; then
+          echo "Usage: newproject <template> <name>"
+          echo "Available templates:"
+          ls ~/dotfiles/templates | grep -v README
+          return 1
+        fi
+        local tmpl="$HOME/dotfiles/templates/$1"
+        if [ ! -d "$tmpl" ]; then
+          echo "Template '$1' not found in ~/dotfiles/templates/"
+          return 1
+        fi
+        local dest="$HOME/projects/$2"
+        mkdir -p "$dest"
+        cp -r "$tmpl"/. "$dest"/
+        cd "$dest"
+        direnv allow
+        echo "Project '$2' ready at $dest"
+      }
+    '';
   };
 
   # --- Starship prompt ---
