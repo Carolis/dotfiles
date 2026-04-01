@@ -47,6 +47,11 @@
     nix-direnv.enable = true;
   };
 
+  # --- Extra paths (non-Nix tools like Claude CLI) ---
+  home.sessionPath = [
+    "$HOME/.local/bin"
+  ];
+
   # --- Zsh ---
   programs.zsh = {
     enable = true;
@@ -70,17 +75,7 @@
   # --- Starship prompt ---
   programs.starship = {
     enable = true;
-    settings = {
-      add_newline = true;
-      character = {
-        success_symbol = "[>](bold green)";
-        error_symbol = "[x](bold red)";
-      };
-      git_branch.symbol = " ";
-      directory = {
-        truncation_length = 3;
-        truncate_to_repo = true;
-      };
-    };
+    enableZshIntegration = true;
   };
+  xdg.configFile."starship.toml".source = ./starship.toml;
 }
