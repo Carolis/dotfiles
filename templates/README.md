@@ -97,6 +97,25 @@ inputs = {
 Find the right commit on https://www.nixhub.io or by searching the nixpkgs
 repo history.
 
+## Using templates with existing repos (e.g. ruby-3.3.6)
+
+When you copy nix files into an existing repo that doesn't track them (like
+`ruby-3.3.6/core`), you need to tell git to ignore them locally so they don't
+block git operations like `pull --rebase`.
+
+After copying the template files into the repo, add them to `.git/info/exclude`:
+
+```bash
+echo -e '.envrc\nflake.nix\nflake.lock\n.direnv\n.corepack\n.pgdata' >> .git/info/exclude
+```
+
+If you accidentally `git add` these files, remove them from the index without
+deleting them:
+
+```bash
+git rm --cached .envrc flake.nix
+```
+
 ## Creating a new template
 
 1. Create a directory under `~/dotfiles/templates/<name>/`
