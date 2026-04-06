@@ -3,6 +3,11 @@
 {
   home.stateVersion = "25.05";
 
+  home.sessionVariables = {
+  LANG = "pt_BR.UTF-8";
+  LC_ALL = "pt_BR.UTF-8";
+};
+
   # Let Home Manager manage itself
   programs.home-manager.enable = true;
 
