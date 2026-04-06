@@ -39,6 +39,14 @@
             mkdir -p "$COREPACK_INSTALL_DIR"
             corepack enable --install-directory "$COREPACK_INSTALL_DIR" 2>/dev/null || true
             export PATH="$COREPACK_INSTALL_DIR:$PATH"
+
+            if [ ! -d "$PGDATA" ]; then
+              echo "Initializing PostgreSQL database..."
+              initdb -D "$PGDATA" --no-locale --encoding=UTF8
+            fi
+            if ! pg_ctl -D "$PGDATA" status > /dev/null 2>&1; then
+              pg_ctl -D "$PGDATA" -l "$PGDATA/postgresql.log" start
+            fi
           '';
         };
       });

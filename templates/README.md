@@ -116,6 +116,26 @@ deleting them:
 git rm --cached .envrc flake.nix
 ```
 
+## PostgreSQL
+
+Templates that include PostgreSQL (rails, ruby-3.3.6) set `$PGDATA` to
+`$PWD/.pgdata` in their shell hook. The database is **not** auto-started — you
+need to initialize and start it yourself the first time:
+
+```bash
+# First time only — initialize the data directory
+initdb -D "$PGDATA" --no-locale --encoding=UTF8
+
+# Start the server (run this each time you enter the shell)
+pg_ctl -D "$PGDATA" -l "$PGDATA/postgresql.log" start
+
+# Stop it when you're done
+pg_ctl -D "$PGDATA" stop
+```
+
+If you see `ActiveRecord::ConnectionNotEstablished` or "connection refused on
+port 5432", PostgreSQL isn't running — start it with the `pg_ctl` command above.
+
 ## Creating a new template
 
 1. Create a directory under `~/dotfiles/templates/<name>/`
