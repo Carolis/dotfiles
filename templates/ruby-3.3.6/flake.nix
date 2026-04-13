@@ -30,6 +30,7 @@
             pkgs.zlib
             pkgs.pkg-config
             pkgs.openssl
+            pkgs.heroku
           ];
 
           shellHook = ''

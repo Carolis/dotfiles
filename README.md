@@ -44,30 +44,26 @@ Each project gets a `flake.nix` that declares its dependencies (Ruby, Node, Post
 
 ### Using an existing template
 
+The flake itself lives in `~/dotfiles/templates/<name>/` and is the single source of truth. The project only gets a one-line `.envrc` that points at it, so there's no `flake.nix` in the project to risk committing.
+
 ```bash
-# Copy flake + envrc into the project
-cp ~/dotfiles/templates/ruby-3.3.6/flake.nix ~/dev/ruby-3.3.6/core/flake.nix
-cp ~/dotfiles/templates/ruby-3.3.6/.envrc ~/dev/ruby-3.3.6/core/.envrc
-
-# Track files for Nix but hide from git status
+# Drop a .envrc into the project pointing at the template
 cd ~/dev/ruby-3.3.6/core
-git add -f flake.nix .envrc
-git update-index --assume-unchanged flake.nix
-git update-index --assume-unchanged .envrc
+cp ~/dotfiles/templates/ruby-3.3.6/.envrc .envrc
 
-# Exclude generated files
-echo -e "flake.lock\n.direnv\n.corepack\n.pgdata" >> .git/info/exclude
+# Hide .envrc and generated files from git (never commit any of them)
+echo -e ".envrc\n.direnv\n.corepack\n.pgdata" >> .git/info/exclude
 
 # Allow direnv (one time)
 direnv allow
 ```
 
-After this, the dev environment activates automatically when you `cd` into the project.
+After this, the dev environment activates automatically when you `cd` into the project. To change the dev shell (add packages, bump versions, etc.), edit `~/dotfiles/templates/ruby-3.3.6/flake.nix` and commit it to the dotfiles repo — the project picks it up immediately.
 
 ### Entering manually (without direnv)
 
 ```bash
-cd ~/dev/ruby-3.3.6/core && nix develop --command zsh
+cd ~/dev/ruby-3.3.6/core && nix develop ~/dotfiles/templates/ruby-3.3.6 --command zsh
 ```
 
 ### Creating a flake for a new project
