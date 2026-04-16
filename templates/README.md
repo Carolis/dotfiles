@@ -27,6 +27,11 @@ gem install rails
 rails new . --database=postgresql
 ```
 
+> **Gems are isolated per project.** The rails template sets `GEM_HOME` to
+> `$PWD/.gems`, so gems you install in one project won't leak into another.
+> Each project can have its own Rails version. The `.gems/` directory is
+> already in the template's `.gitignore`.
+
 ### One-off scratch shell (no project, no files)
 
 If you just want a quick throwaway shell to test something:
@@ -106,7 +111,7 @@ block git operations like `pull --rebase`.
 After copying the template files into the repo, add them to `.git/info/exclude`:
 
 ```bash
-echo -e '.envrc\nflake.nix\nflake.lock\n.direnv\n.corepack\n.pgdata' >> .git/info/exclude
+echo -e '.envrc\nflake.nix\nflake.lock\n.direnv\n.gems\n.corepack\n.pgdata' >> .git/info/exclude
 ```
 
 If you accidentally `git add` these files, remove them from the index without
@@ -142,3 +147,5 @@ port 5432", PostgreSQL isn't running — start it with the `pg_ctl` command abov
 2. Add a `flake.nix` with a `devShells.default` output
 3. Add a `.envrc` containing `use flake`
 4. Optionally add a `.gitignore` for Nix artifacts
+5. For Ruby templates, set `GEM_HOME="$PWD/.gems"` in `shellHook` to isolate
+   gems per project (and add `.gems/` to the `.gitignore`)
