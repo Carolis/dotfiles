@@ -21,7 +21,6 @@
         default = pkgs.mkShell {
           packages = [
             rubyPkgs.ruby_3_3
-            pkgs.bundler
             pkgs.nodejs_22
             pkgs.corepack
             pkgs.postgresql_16

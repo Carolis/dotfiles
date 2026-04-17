@@ -99,6 +99,33 @@ Add a `.envrc` with `use flake` for auto-activation.
 
 If using direnv, it picks up changes automatically. If using `nix develop`, exit and re-enter.
 
+## Gotchas
+
+### GEM_HOME leaking between projects
+
+If a project's flake sets `GEM_HOME` in its `shellHook` (e.g. `guides` does this to isolate gems), that variable persists in any shell or VS Code window that was opened while that project was active. When direnv switches to another project, it only exports *diffs* — it won't unset `GEM_HOME` unless the new project explicitly does so.
+
+Symptom: Ruby LSP fails to start in VS Code with a `Gem::MissingSpecVersionError`, picking up gems from a completely different project.
+
+Fix: add explicit unsets to the project's `.envrc`, **not** in the flake's `shellHook`. `use flake` goes through `nix print-dev-env` which skips `shellHook` entirely — only `.envrc` additions take effect for direnv.
+
+```bash
+# .envrc
+use flake ~/dotfiles/templates/ruby-3.3.6
+unset GEM_HOME
+unset GEM_PATH
+```
+
+The `ruby-3.3.6` template `.envrc` already includes these unsets. If you create a new Rails template whose flake doesn't manage gems, add the same lines to its `.envrc`.
+
+After updating a flake, run `direnv reload` in the project and restart VS Code fully (quit + reopen) so it inherits the clean environment.
+
+### Don't include `pkgs.bundler` alongside a pinned Ruby
+
+If your flake pins Ruby from a separate nixpkgs input (like `rubyPkgs.ruby_3_3`), do **not** also include `pkgs.bundler` from the main nixpkgs. The bundler package carries its own Ruby version in its Nix store path — mixing them causes a `CorruptBundlerInstallError` at runtime because two bundler versions end up on `GEM_PATH`.
+
+Ruby ships with bundler as a default gem, so no explicit bundler package is needed.
+
 ## Updating packages
 
 ```bash
