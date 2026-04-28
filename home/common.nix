@@ -74,6 +74,8 @@
       gs = "git status";
       gd = "git diff";
       gl = "git log --oneline -20";
+      claude-personal = "CLAUDE_CONFIG_DIR=$HOME/.claude-personal CLAUDE_CODE_USE_KEYCHAIN=0 claude";
+      claude-work     = "CLAUDE_CONFIG_DIR=$HOME/.claude-work     CLAUDE_CODE_USE_KEYCHAIN=0 claude";
     };
     initExtra = ''
       # Scaffold a new project from a dotfiles template

@@ -126,6 +126,31 @@ If your flake pins Ruby from a separate nixpkgs input (like `rubyPkgs.ruby_3_3`)
 
 Ruby ships with bundler as a default gem, so no explicit bundler package is needed.
 
+## Running multiple Claude Code accounts
+
+`common.nix` defines two aliases for using a personal and a work Claude account side by side:
+
+```
+claude-personal  →  CLAUDE_CONFIG_DIR=$HOME/.claude-personal claude
+claude-work      →  CLAUDE_CONFIG_DIR=$HOME/.claude-work     claude
+```
+
+Each `CLAUDE_CONFIG_DIR` is a fully isolated config dir (credentials, settings, sessions, memory, plugins). `CLAUDE_CODE_USE_KEYCHAIN=0` is set on macOS to keep credentials in the config dir instead of the shared system Keychain — without it, both accounts would fight over one Keychain entry.
+
+### First-time setup on a new machine
+
+```bash
+mkdir -p ~/.claude-personal ~/.claude-work
+# optional: seed each dir with your existing ~/.claude state (memories, sessions)
+cp -R ~/.claude/. ~/.claude-personal/
+cp -R ~/.claude/. ~/.claude-work/
+
+claude-personal   # then /login with personal account
+claude-work       # then /login with work account
+```
+
+The two can run simultaneously in separate terminals — they share no state.
+
 ## Updating packages
 
 ```bash
