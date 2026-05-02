@@ -26,13 +26,6 @@
             pkg-config
             openssl
           ];
-
-          shellHook = ''
-            export GEM_HOME="$PWD/.gems"
-            export PATH="$GEM_HOME/bin:$PATH"
-            export PGDATA="$PWD/.pgdata"
-            export LANG=en_US.UTF-8
-          '';
         };
       });
     };

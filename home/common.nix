@@ -94,7 +94,11 @@
         fi
         local dest="$HOME/projects/$2"
         mkdir -p "$dest"
-        cp -r "$tmpl"/. "$dest"/
+        # Copy only .envrc and .gitignore, flake.nix lives in the template
+        # (single source of truth) and the .envrc points back at it via
+        # `use flake ~/dotfiles/templates/<name>`.
+        cp "$tmpl/.envrc" "$dest/.envrc"
+        [ -f "$tmpl/.gitignore" ] && cp "$tmpl/.gitignore" "$dest/.gitignore"
         cd "$dest"
         direnv allow
         echo "Project '$2' ready at $dest"

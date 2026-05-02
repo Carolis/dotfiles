@@ -104,28 +104,35 @@ repo history.
 
 ## Using templates with existing repos
 
-When you copy nix files into an existing repo that doesn't track them, you need
-to tell git to ignore them locally so they don't block git operations like
-`pull --rebase`.
-
-After copying the template files into the repo, add them to `.git/info/exclude`:
+Drop a `.envrc` into the repo that points at the template. The template's
+`flake.nix` stays at `~/dotfiles/templates/<name>/` — don't copy it into the
+project, that's the whole point of the single-source-of-truth setup.
 
 ```bash
-echo -e '.envrc\nflake.nix\nflake.lock\n.direnv\n.gems\n.corepack\n.pgdata' >> .git/info/exclude
+cp ~/dotfiles/templates/rails/.envrc .envrc
+direnv allow
 ```
 
-If you accidentally `git add` these files, remove them from the index without
-deleting them:
+If the repo doesn't track Nix files, hide them from git locally so they don't
+block operations like `pull --rebase`:
 
 ```bash
-git rm --cached .envrc flake.nix
+echo -e '.envrc\n.direnv\n.gems\n.corepack\n.pgdata' >> .git/info/exclude
+```
+
+If you accidentally `git add .envrc`, remove it from the index without
+deleting it:
+
+```bash
+git rm --cached .envrc
 ```
 
 ## PostgreSQL
 
 Templates that include PostgreSQL (rails, ruby-3.3.6) set `$PGDATA` to
-`$PWD/.pgdata` in their shell hook. The database is **not** auto-started — you
-need to initialize and start it yourself the first time:
+`$PWD/.pgdata` so each project gets its own isolated data directory. The
+database is **not** auto-started — you need to initialize and start it yourself
+the first time:
 
 ```bash
 # First time only — initialize the data directory
@@ -145,7 +152,13 @@ port 5432", PostgreSQL isn't running — start it with the `pg_ctl` command abov
 
 1. Create a directory under `~/dotfiles/templates/<name>/`
 2. Add a `flake.nix` with a `devShells.default` output
-3. Add a `.envrc` containing `use flake`
-4. Optionally add a `.gitignore` for Nix artifacts
-5. For Ruby templates, set `GEM_HOME="$PWD/.gems"` in `shellHook` to isolate
-   gems per project (and add `.gems/` to the `.gitignore`)
+3. Add a `.envrc` whose first line is `use flake ~/dotfiles/templates/<name>`
+   (the absolute path matters — projects only get the `.envrc`, the flake stays
+   in the template dir as the single source of truth)
+4. Optionally add a `.gitignore` for Nix artifacts (`.direnv/`, `.gems/`, etc.)
+5. Per-project env vars (`GEM_HOME="$PWD/.gems"`, `PGDATA="$PWD/.pgdata"`,
+   etc.) belong in the **template's `.envrc`**, NOT in the flake's `shellHook`.
+   `use flake` goes through `nix print-dev-env`, which skips `shellHook`
+   entirely — anything you put there will silently not run. See the "GEM_HOME
+   leaking between projects" gotcha in the parent `dotfiles/README.md` for
+   the full story.
