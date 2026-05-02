@@ -1,5 +1,5 @@
 {
-  description = "ruby-3.3.6 Core dev environment";
+  description = "Ruby 3.3.6 (pinned) dev environment";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";

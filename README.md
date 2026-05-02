@@ -12,7 +12,7 @@ home/
   wsl.nix              # WSL-specific (placeholder)
 templates/
   ruby-3.3.6/
-    flake.nix           # Dev shell for the ruby-3.3.6 core project
+    flake.nix           # Dev shell pinned to Ruby 3.3.6
     .envrc              # Direnv auto-activation file
 ```
 
@@ -48,7 +48,7 @@ The flake itself lives in `~/dotfiles/templates/<name>/` and is the single sourc
 
 ```bash
 # Drop a .envrc into the project pointing at the template
-cd ~/dev/ruby-3.3.6/core
+cd ~/dev/myapp
 cp ~/dotfiles/templates/ruby-3.3.6/.envrc .envrc
 
 # Hide .envrc and generated files from git (never commit any of them)
@@ -63,7 +63,7 @@ After this, the dev environment activates automatically when you `cd` into the p
 ### Entering manually (without direnv)
 
 ```bash
-cd ~/dev/ruby-3.3.6/core && nix develop ~/dotfiles/templates/ruby-3.3.6 --command zsh
+cd ~/dev/myapp && nix develop ~/dotfiles/templates/ruby-3.3.6 --command zsh
 ```
 
 ### Creating a flake for a new project
@@ -103,7 +103,7 @@ If using direnv, it picks up changes automatically. If using `nix develop`, exit
 
 ### GEM_HOME leaking between projects
 
-If a project's flake sets `GEM_HOME` in its `shellHook` (e.g. `guides` does this to isolate gems), that variable persists in any shell or VS Code window that was opened while that project was active. When direnv switches to another project, it only exports *diffs* — it won't unset `GEM_HOME` unless the new project explicitly does so.
+If a project's flake sets `GEM_HOME` in its `shellHook` (e.g. the `rails` template does this to isolate gems), that variable persists in any shell or VS Code window that was opened while that project was active. When direnv switches to another project, it only exports *diffs* — it won't unset `GEM_HOME` unless the new project explicitly does so.
 
 Symptom: Ruby LSP fails to start in VS Code with a `Gem::MissingSpecVersionError`, picking up gems from a completely different project.
 
@@ -116,7 +116,7 @@ unset GEM_HOME
 unset GEM_PATH
 ```
 
-The `ruby-3.3.6` template `.envrc` already includes these unsets. If you create a new Rails template whose flake doesn't manage gems, add the same lines to its `.envrc`.
+The `ruby-3.3.6` template `.envrc` already includes these unsets. If you create a new template whose flake doesn't manage gems, add the same lines to its `.envrc`.
 
 After updating a flake, run `direnv reload` in the project and restart VS Code fully (quit + reopen) so it inherits the clean environment.
 

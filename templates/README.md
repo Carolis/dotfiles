@@ -89,7 +89,7 @@ gets the exact same versions.
 ### Pinning a specific version
 
 If nixpkgs-unstable doesn't have the version you need, pin to a specific
-nixpkgs commit (like the ruby-3.3.6 template does for Ruby 3.3.6):
+nixpkgs commit (like the `ruby-3.3.6` template does):
 
 ```nix
 inputs = {
@@ -102,11 +102,11 @@ inputs = {
 Find the right commit on https://www.nixhub.io or by searching the nixpkgs
 repo history.
 
-## Using templates with existing repos (e.g. ruby-3.3.6)
+## Using templates with existing repos
 
-When you copy nix files into an existing repo that doesn't track them (like
-`ruby-3.3.6/core`), you need to tell git to ignore them locally so they don't
-block git operations like `pull --rebase`.
+When you copy nix files into an existing repo that doesn't track them, you need
+to tell git to ignore them locally so they don't block git operations like
+`pull --rebase`.
 
 After copying the template files into the repo, add them to `.git/info/exclude`:
 
