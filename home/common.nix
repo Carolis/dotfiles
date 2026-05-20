@@ -14,6 +14,7 @@
   # --- CLI tools ---
   home.packages = with pkgs; [
     ripgrep
+    gh
     fd
     jq
     tree
