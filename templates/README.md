@@ -49,10 +49,12 @@ nix develop ~/dotfiles/templates/rails --command ruby -e "puts RUBY_VERSION"
 
 ## Available templates
 
-| Template     | What's in it                              |
-|-------------|-------------------------------------------|
-| `rails`      | Ruby 3.4, Node 22, PostgreSQL 17, bundler |
-| `ruby-3.3.6` | Ruby 3.3.6 (pinned), Node 22, PostgreSQL 16, corepack |
+| Template      | What's in it                              |
+|--------------|-------------------------------------------|
+| `rails`       | Ruby 3.4, Node 22, PostgreSQL 17, bundler |
+| `ruby-3.3.6`  | Ruby 3.3.6 (pinned), Node 22, PostgreSQL 16, corepack |
+| `macos-xcode` | Node 22, GraphicsMagick, ImageMagick, xcbeautify peripheral tooling for native macOS/Xcode apps (the app itself builds via Xcode, not Nix) |
+| `node-pnpm`   | Node 22, pnpm for generic JS/TS projects with no other runtime deps |
 
 ## How Nix package versions work
 
