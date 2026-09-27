@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# Generate a Rails 7.1 app in the current directory with React + TypeScript
+# bundled by esbuild (jsbundling-rails). Run from a `newproject rails-7.1-react`
+# directory. Extra args are passed to `rails new` (e.g. --database=postgresql).
+set -euo pipefail
+
+if [ -f Gemfile ]; then
+  echo "Gemfile already exists; refusing to run rails new here." >&2
+  exit 1
+fi
+
+TEMPLATE_DIR="$HOME/dotfiles/templates/rails-7.1-react"
+
+# .envrc installed Rails 7.1 into .gems, so `rails` here is 7.1
+rails new . --javascript=esbuild --force "$@"
+
+# rails new overwrote .gitignore; re-add the Nix/direnv entries
+cat "$TEMPLATE_DIR/.gitignore" >> .gitignore
+
+# Rails 7.1's test runner crashes with minitest 6
+bundle add minitest --version "~> 5.25" --group test
+
+yarn add react react-dom
+yarn add --dev typescript @types/react @types/react-dom
+
+# esbuild reads "jsx" from here; tsc is only used for type checking
+cat > tsconfig.json <<'EOF'
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "allowJs": true
+  },
+  "include": ["app/javascript/**/*"]
+}
+EOF
+npm pkg set scripts.typecheck="tsc --noEmit"
+
+mkdir -p app/javascript/components
+cat > app/javascript/components/App.tsx <<'EOF'
+type AppProps = {
+  name: string
+}
+
+export default function App({ name }: AppProps) {
+  return <h1>Hello from React, {name}!</h1>
+}
+EOF
+
+# Mounts <App /> into any element with id="react-root", passing data-* props
+mkdir -p app/javascript/react
+cat > app/javascript/react/index.tsx <<'EOF'
+import { createRoot, Root } from "react-dom/client"
+import App from "../components/App"
+
+let root: Root | null = null
+
+document.addEventListener("turbo:load", () => {
+  const el = document.getElementById("react-root")
+  if (!el) return
+  root?.unmount()
+  root = createRoot(el)
+  root.render(<App name={el.dataset.name ?? "Rails"} />)
+})
+EOF
+echo 'import "./react"' >> app/javascript/application.js
+
+bin/rails generate controller Home index --skip-routes --no-helper
+cat > app/views/home/index.html.erb <<'EOF'
+<div id="react-root" data-name="Rails 7.1"></div>
+EOF
+sed -i.bak 's|^  # root "posts#index"|  root "home#index"|' config/routes.rb && rm config/routes.rb.bak
+cat > test/controllers/home_controller_test.rb <<'EOF'
+require "test_helper"
+
+class HomeControllerTest < ActionDispatch::IntegrationTest
+  test "root renders the React mount point" do
+    get root_url
+    assert_response :success
+    assert_select "#react-root"
+  end
+end
+EOF
+
+# Plain --watch exits when stdin closes, which takes all of bin/dev down with it
+sed -i.bak 's|yarn build --watch$|yarn build --watch=forever|' Procfile.dev && rm Procfile.dev.bak
+
+yarn build
+yarn typecheck
+
+echo
+echo "Done. Start the app with: bin/dev   (http://localhost:3000)"

@@ -48,6 +48,26 @@ bundle add minitest --version "~> 5.25" --group test
   `Gemfile.lock` decides the Rails version. To bootstrap a different version,
   change `RAILS_VERSION` in the project's `.envrc`.
 
+### New Rails 7.1 + React + TypeScript project
+
+```bash
+newproject rails-7.1-react myapp
+rails-react-init            # extra args go to `rails new`, e.g. --database=postgresql
+bin/dev                     # http://localhost:3000
+```
+
+`rails-react-init` (in `rails-7.1-react/bin/`, put on PATH by the `.envrc`)
+runs `rails new . --javascript=esbuild` and then does all of the above
+fix-ups for you, plus:
+
+- adds `react`, `react-dom`, `typescript`, `@types/react*` and a `tsconfig.json`
+- `app/javascript/components/App.tsx` — your first component
+- `app/javascript/react/index.tsx` — mounts `<App />` into `#react-root` on `turbo:load`
+- `HomeController#index` as the root page, with a test for the mount point
+- `yarn typecheck` runs `tsc --noEmit` (esbuild strips types, it doesn't check them)
+- `Procfile.dev` uses `--watch=forever`; plain `--watch` makes esbuild exit
+  when stdin closes, and foreman then stops the Rails server too
+
 ### One-off scratch shell (no project, no files)
 
 If you just want a quick throwaway shell to test something:
@@ -69,6 +89,7 @@ nix develop ~/dotfiles/templates/rails --command ruby -e "puts RUBY_VERSION"
 |--------------|-------------------------------------------|
 | `rails`       | Ruby 3.4, Node 22, PostgreSQL 17, bundler |
 | `rails-7.1`   | Same as `rails` + sqlite, and `.envrc` auto-installs Rails 7.1 into `.gems` |
+| `rails-7.1-react` | `rails-7.1` + yarn, and a `rails-react-init` command that sets up React + TypeScript via esbuild |
 | `ruby-3.3.6`  | Ruby 3.3.6 (pinned), Node 22, PostgreSQL 16, corepack |
 | `macos-xcode` | Node 22, GraphicsMagick, ImageMagick, xcbeautify peripheral tooling for native macOS/Xcode apps (the app itself builds via Xcode, not Nix) |
 | `node-pnpm`   | Node 22, pnpm for generic JS/TS projects with no other runtime deps |
