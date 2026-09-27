@@ -1,0 +1,5 @@
+# Nix / direnv
+.direnv/
+.gems/
+.pgdata/
+result

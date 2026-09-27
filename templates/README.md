@@ -32,6 +32,22 @@ rails new . --database=postgresql
 > Each project can have its own Rails version. The `.gems/` directory is
 > already in the template's `.gitignore`.
 
+### New Rails 7.1 project (Rails pre-installed)
+
+```bash
+newproject rails-7.1 myapp
+rails new .
+bundle add minitest --version "~> 5.25" --group test
+```
+
+- `rails new .` asks whether to overwrite `.gitignore` — answer `Y`, then
+  re-add the Nix lines: `cat ~/dotfiles/templates/rails-7.1/.gitignore >> .gitignore`
+- The minitest pin is required: Rails 7.1's test runner crashes with
+  minitest 6 (`wrong number of arguments (given 3, expected 1..2)`).
+- The auto-install only runs while there's no `Gemfile`. After `rails new`,
+  `Gemfile.lock` decides the Rails version. To bootstrap a different version,
+  change `RAILS_VERSION` in the project's `.envrc`.
+
 ### One-off scratch shell (no project, no files)
 
 If you just want a quick throwaway shell to test something:
@@ -52,6 +68,7 @@ nix develop ~/dotfiles/templates/rails --command ruby -e "puts RUBY_VERSION"
 | Template      | What's in it                              |
 |--------------|-------------------------------------------|
 | `rails`       | Ruby 3.4, Node 22, PostgreSQL 17, bundler |
+| `rails-7.1`   | Same as `rails` + sqlite, and `.envrc` auto-installs Rails 7.1 into `.gems` |
 | `ruby-3.3.6`  | Ruby 3.3.6 (pinned), Node 22, PostgreSQL 16, corepack |
 | `macos-xcode` | Node 22, GraphicsMagick, ImageMagick, xcbeautify peripheral tooling for native macOS/Xcode apps (the app itself builds via Xcode, not Nix) |
 | `node-pnpm`   | Node 22, pnpm for generic JS/TS projects with no other runtime deps |
